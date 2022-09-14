@@ -1,21 +1,30 @@
 import java.rmi.RemoteException;
-import java.rmi.registry.Registry;
-import java.rmi.registry.LocateRegistry;
-import java.rmi.server.UnicastRemoteObject;
-
+import java.util.LinkedList;
+import java.util.Queue;
 public class Server implements ServerInterface {
-    private String name;
+    private final String ip;
+    private final String port;
 
-    public Server(String name){
-        this.name = name;
-    }
+    //waiting list
+    private final Queue<Task> waitingList; //task ?
+    
+    private final Thread processingThread;
 
-    public String getName() {
-        return name;
+    public Server(String ip, String port){
+        this.ip = ip;
+        this.port = port;
+        this.waitingList = new LinkedList<Task>();
+        processingThread = new ProcessingThread(waitingList);
     }
 
     @Override
-    public String sayHello() throws RemoteException {
-        return "Hello from Server " + getName();
+    public String getIp() throws RemoteException{
+        return ip;
     }
+
+    @Override
+    public String getPort() throws RemoteException{
+        return port;
+    }
+
 }

@@ -7,17 +7,14 @@ public class ServerSimulator{
     }
     public static void main(String[] args) {
         try {
-            Server serverA = new Server("192.168.0.1", "443");
-            Server serverB = new Server("192.168.0.2", "443");
+            Server serverA = new Server("192.168.0.1", "443", 1);
             ServerInterface stubA = (ServerInterface) UnicastRemoteObject.exportObject(serverA, 0);
-            ServerInterface stubB = (ServerInterface) UnicastRemoteObject.exportObject(serverB, 0);
 
             // Bind the remote object's stub in the registry
             LocateRegistry.createRegistry(1099);
             Registry registry = LocateRegistry.getRegistry();
 
             registry.bind("192.168.0.154:443", stubA);
-            registry.bind("ServerB", stubB);
 
             System.err.println("Servers are ready");
         } catch (Exception e) {

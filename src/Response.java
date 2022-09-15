@@ -26,6 +26,18 @@ public class Response implements Serializable {
         this.waitTime = waitTime;
     }
 
+    public int getResult() {
+        return result;
+    }
+
+    public double getExecTime() {
+        return execTime;
+    }
+
+    public double getWaitTime() {
+        return waitTime;
+    }
+
     public Request getReq() {
         return req;
     }

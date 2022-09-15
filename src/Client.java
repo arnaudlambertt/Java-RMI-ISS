@@ -16,7 +16,7 @@ public class Client {
             new Thread(() -> {
                 try {
                     MarshalledObject<Request> mReq2 = new MarshalledObject<>(req2);
-                    System.out.println("Server response: " + stubA.queryRequest(mReq2).get().getReq().getMethodName());
+                    System.out.println("Server response: " + stubA.queryRequest(mReq2).get().getResult());
                 } catch (IOException | ClassNotFoundException e) {
                     throw new RuntimeException(e);
                 }
@@ -24,7 +24,7 @@ public class Client {
 
             new Thread(() -> {
                 try {
-                    System.out.println("Server response: " + stubA.queryRequest(new MarshalledObject<Request>(req)).get().getReq().getMethodName());
+                    System.out.println("Server response: " + stubA.queryRequest(new MarshalledObject<Request>(req)).get().getResult());
                 } catch (IOException | ClassNotFoundException e) {
                     throw new RuntimeException(e);
                 }

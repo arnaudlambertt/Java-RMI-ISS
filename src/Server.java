@@ -144,6 +144,11 @@ public class Server implements ServerInterface {
         return port;
     }
 
+    @Override
+    public boolean isBusy() throws RemoteException {
+        return false;
+    }
+
     public int getZone() {
         return zone;
     }

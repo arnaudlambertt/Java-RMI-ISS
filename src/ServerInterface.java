@@ -6,5 +6,7 @@ public interface ServerInterface extends Remote {
     String getIp() throws RemoteException;
     String getPort() throws RemoteException;
 
+    boolean isBusy() throws RemoteException;
+
     MarshalledObject<Response> queryRequest(MarshalledObject<Request> req) throws RemoteException;
 }

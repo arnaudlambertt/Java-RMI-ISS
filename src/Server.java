@@ -7,8 +7,6 @@ import java.rmi.RemoteException;
 import java.util.*;
 
 public class Server implements ServerInterface {
-    private final String ip;
-    private final String port;
     private final int zone;
     private final Queue<Task> waitingList;
 
@@ -35,9 +33,7 @@ public class Server implements ServerInterface {
     }
 
 
-    public Server(String ip, String port, int zone){
-        this.ip = ip;
-        this.port = port;
+    public Server(int zone){
         this.zone = zone;
         this.dataset = parseDataset("data/dataset.csv");
         this.waitingList = new LinkedList<>();
@@ -135,18 +131,8 @@ public class Server implements ServerInterface {
     }
 
     @Override
-    public String getIp() throws RemoteException{
-        return ip;
-    }
-
-    @Override
-    public String getPort() throws RemoteException{
-        return port;
-    }
-
-    @Override
-    public boolean isBusy() throws RemoteException {
-        return false;
+    public Integer getQueueLength() throws RemoteException {
+        return waitingList.size();
     }
 
     public int getZone() {

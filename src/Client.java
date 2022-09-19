@@ -10,7 +10,7 @@ public class Client {
             Registry registry = LocateRegistry.getRegistry(host);
             ProxyInterface proxyStub = (ProxyInterface) registry.lookup("example.com");
 
-            String serverIP = proxyStub.requestConnection(1);
+            String serverIP = proxyStub.requestConnection(5);
             ServerInterface serverStub = (ServerInterface) registry.lookup(serverIP);
 
             Request req = new Request("getA", new String[]{"22", "33"}, 0);

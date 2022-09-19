@@ -12,19 +12,15 @@ import java.util.Map;
 public class Proxy implements ProxyInterface {
 
     HashMap<Integer, String> serverMap = new HashMap<>();
-    ArrayList<ServerInterface> stubArray = new ArrayList<>();
+    ArrayList<ServerInterface> stubs = new ArrayList<>();
 
     Proxy() throws RemoteException, NotBoundException {
-        serverMap.put(1, "192.168.0.154:443");
-        /*
-        serverMap.put(2, "192.168.0.155:443");
-        serverMap.put(3, "192.168.0.156:443");
-        serverMap.put(4, "192.168.0.157:443");
-        serverMap.put(5, "192.168.0.158:443");
-        */
+
         Registry registry = LocateRegistry.getRegistry(1099);
-        for(Map.Entry<Integer, String> entry : serverMap.entrySet()){
-            stubArray.add((ServerInterface) registry.lookup(entry.getValue()));
+        for(int i = 1; i <= 5; i++){
+            String ip = "192.168.0.154:443" + (i - 1);
+            serverMap.put(i, ip);
+            stubs.add((ServerInterface) registry.lookup(ip));
         }
     }
 
@@ -33,10 +29,10 @@ public class Proxy implements ProxyInterface {
         int lower = (zone+3)%5;
 
         //.getQueueLength() <= 8;
-        if(!stubArray.get(higher).isBusy()){
+        if(stubs.get(higher).getQueueLength() <= 8){
             return serverMap.get(higher+1);
         }
-        else if(!stubArray.get(lower).isBusy())
+        else if(stubs.get(lower).getQueueLength() <= 8)
         {
             return serverMap.get(lower+1);
         }
@@ -45,6 +41,6 @@ public class Proxy implements ProxyInterface {
     }
     @Override
     public String requestConnection(int zone) throws RemoteException {
-        return stubArray.get(zone-1).isBusy() ?  requestNeighbor(zone) : serverMap.get(zone);
+        return stubs.get(zone-1).getQueueLength() <= 20 ?  requestNeighbor(zone) : serverMap.get(zone);
     }
 }

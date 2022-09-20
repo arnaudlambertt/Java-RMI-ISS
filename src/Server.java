@@ -39,7 +39,6 @@ public class Server implements ServerInterface {
         this.waitingList = new LinkedList<>();
         this.processingThread = new ProcessingThread(waitingList);
     }
-
     public ArrayList<ArrayList<String>> parseDataset(String fileName)
     {
         File file= new File(fileName);
@@ -146,7 +145,8 @@ public class Server implements ServerInterface {
             res = new Response(req.get());
             Thread.sleep(req.get().getClientZone() == this.getZone() ? 80 : 170);
             //System.out.println(getNumberOfCountries("30", "100000", "800000"));
-            res.setResult(getNumberOfCountries("30", "100000", "800000"));
+            //res.setResult(getNumberOfCountries("30", "100000", "800000"));
+            res.setResult(zone);
             return new MarshalledObject<>(res);
         } catch (IOException | ClassNotFoundException | InterruptedException e) {
             throw new RuntimeException(e);

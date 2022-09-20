@@ -18,10 +18,16 @@ public class ServerSimulator{
             Registry registry = LocateRegistry.getRegistry();
 
             for(int i = 0; i < serverAmount; i++) {
-                servers.add(new Server(i+1));
-                stubs.add((ServerInterface) UnicastRemoteObject.exportObject(servers.get(i), 0));
-                registry.bind("192.168.0.154:443" + i, stubs.get(i));
+                Server server = new Server(i+1);
+                servers.add(server);
+                stubs.add((ServerInterface) UnicastRemoteObject.exportObject(server, 0));
             }
+            registry.bind("192.168.0.154:80" , stubs.get(0)); //Zone 1
+            registry.bind("245.208.163.94:80", stubs.get(1)); //Zone 2
+            registry.bind("233.78.39.114:80" , stubs.get(2)); //Zone 3
+            registry.bind("178.67.237.95:80" , stubs.get(3)); //Zone 4
+            registry.bind("152.149.64.160:80", stubs.get(4)); //Zone 5
+
 
             Proxy proxyServer = new Proxy();
             ProxyInterface proxyStub = (ProxyInterface) UnicastRemoteObject.exportObject(proxyServer, 0);

@@ -7,6 +7,8 @@ public class Client {
     public static void main(String[] args) {
         String host = (args.length < 1) ? null : args[0];
         try {
+            int clientAmount = 50;
+
             Registry registry = LocateRegistry.getRegistry(host);
             ProxyInterface proxyStub = (ProxyInterface) registry.lookup("example.com");
 
@@ -15,6 +17,7 @@ public class Client {
 
             Request req = new Request("getA", new String[]{"22", "33"}, 0);
             Request req2 = new Request("getB", new String[]{"11", "44"}, 0);
+
 
             new Thread(() -> {
                 try {

@@ -1,3 +1,4 @@
+import javax.swing.*;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
@@ -11,13 +12,14 @@ import java.util.concurrent.LinkedBlockingQueue;
 public class Server implements ServerInterface {
     private final int zone;
     private final BlockingQueue<Task> waitingList;
-
     private final ArrayList<ArrayList<String>> dataset;
+    private final CachingMap<String,Integer> cache;
 
     public Server(int zone){
         this.zone = zone;
         this.dataset = parseDataset("data/dataset.csv");
         this.waitingList = new LinkedBlockingQueue<>();
+        this.cache = new CachingMap<>(2);
         Thread processingThread = new Thread(this::processTasks);
         processingThread.start();
     }
@@ -42,15 +44,6 @@ public class Server implements ServerInterface {
             e.printStackTrace();
         }
 
-        // the following code lets you iterate through the 2-dimensional array
-        /*int lineNo = 1;
-        for(ArrayList<String> line: parsedDataset) {
-            System.out.println(line.toString());
-            lineNo++;
-        }
-        System.out.println(parsedDataset.size());
-        */
-
         return parsedDataset;
     }
 
@@ -61,32 +54,49 @@ public class Server implements ServerInterface {
                 long startExecutionTime = System.currentTimeMillis();
                 currentTask.setWaitingTime(startExecutionTime-currentTask.getWaitingTime());
 
-                switch (currentTask.getMethodName()){
-                    case "getPopulationOfCountry": {
-                        String arg0 = currentTask.getArguments().get(0);
-                        currentTask.setResult(getPopulationOfCountry(arg0));
-                        break;
-                    }
-                    case "getNumberOfCities": {
-                        String arg0 = currentTask.getArguments().get(0);
-                        String arg1 = currentTask.getArguments().get(1);
-                        currentTask.setResult(getNumberOfCities(arg0,arg1));
-                        break;
-                    }
-                    case "getNumberOfCountries": {
-                        String arg0 = currentTask.getArguments().get(0);
-                        String arg1 = currentTask.getArguments().get(1);
-                        if(currentTask.getArguments().size() < 3)
-                            currentTask.setResult(getNumberOfCountries(arg0,arg1));
-                        else {
-                            String arg2 = currentTask.getArguments().get(2);
-                            currentTask.setResult(getNumberOfCountries(arg0,arg1,arg2));
+                String queryString = currentTask.getMethodName() + currentTask.getArguments();
+                Integer cacheResult = cache.get(queryString);
+
+                if(cacheResult == null){
+
+                    int result;
+
+                    switch (currentTask.getMethodName()){
+                        case "getPopulationOfCountry": {
+                            String arg0 = currentTask.getArguments().get(0);
+                            result = getPopulationOfCountry(arg0);
+                            break;
                         }
-                        break;
+                        case "getNumberOfCities": {
+                            String arg0 = currentTask.getArguments().get(0);
+                            String arg1 = currentTask.getArguments().get(1);
+                            result = getNumberOfCities(arg0,arg1);
+                            break;
+                        }
+                        case "getNumberOfCountries": {
+                            String arg0 = currentTask.getArguments().get(0);
+                            String arg1 = currentTask.getArguments().get(1);
+                            if(currentTask.getArguments().size() < 3)
+                                result = getNumberOfCountries(arg0,arg1);
+                            else {
+                                String arg2 = currentTask.getArguments().get(2);
+                                result = getNumberOfCountries(arg0,arg1,arg2);
+                            }
+                            break;
+                        }
+                        default:
+                            result = 0;
+                            break;
                     }
-                    default:
-                        break;
+                    currentTask.setResult(result);
+                    System.out.println("FROM DATASET: " + result);
+                    cache.put(queryString, result);
+
+                }else{
+                    System.out.println("FROM CACHE: " + cacheResult);
+                    currentTask.setResult(cacheResult);
                 }
+
                 currentTask.setExecutionTime(System.currentTimeMillis()-startExecutionTime);
                 synchronized (currentTask){
                     currentTask.notify();

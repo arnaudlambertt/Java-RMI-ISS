@@ -1,5 +1,6 @@
 import java.io.IOException;
 import java.rmi.MarshalledObject;
+import java.rmi.NotBoundException;
 import java.rmi.RemoteException;
 import java.rmi.registry.LocateRegistry;
 import java.rmi.registry.Registry;
@@ -13,8 +14,6 @@ public class Client {
             Registry registry = LocateRegistry.getRegistry(host);
             ProxyInterface proxyStub = (ProxyInterface) registry.lookup("example.com");
 
-            String serverIP = proxyStub.requestConnection(5);
-            ServerInterface serverStub = (ServerInterface) registry.lookup(serverIP);
 
             Request req = new Request("getA", new String[]{"22", "33"}, 5);
             Request req2 = new Request("getNumberOfCities", new String[]{"IT", "ABC"}, 5);
@@ -24,50 +23,178 @@ public class Client {
 
             new Thread(() -> {
                 try {
+                    String serverIP = proxyStub.requestConnection(5);
+                    ServerInterface serverStub = (ServerInterface) registry.lookup(serverIP);
                     MarshalledObject<Request> mReq = new MarshalledObject<>(req);
                     System.out.println(serverStub.queryRequest(mReq).get());
-                } catch (IOException | ClassNotFoundException e) {
+                } catch (IOException | ClassNotFoundException | NotBoundException e) {
                     throw new RuntimeException(e);
                 }
             }).start();
 
             new Thread(() -> {
                 try {
+                    String serverIP = proxyStub.requestConnection(5);
+                    ServerInterface serverStub = (ServerInterface) registry.lookup(serverIP);
                     MarshalledObject<Request> mReq2 = new MarshalledObject<>(req2);
                     System.out.println(serverStub.queryRequest(mReq2).get());
-                } catch (IOException | ClassNotFoundException e) {
+                } catch (IOException | ClassNotFoundException | NotBoundException e) {
                     throw new RuntimeException(e);
                 }
             }).start();
 
             new Thread(() -> {
                 try {
+                    String serverIP = proxyStub.requestConnection(5);
+                    ServerInterface serverStub = (ServerInterface) registry.lookup(serverIP);
                     MarshalledObject<Request> mReq3 = new MarshalledObject<>(req3);
                     System.out.println(serverStub.queryRequest(mReq3).get());
-                } catch (IOException | ClassNotFoundException e) {
-                    throw new RuntimeException(e);
-                }
-            }).start();
-
-            new Thread(() -> {
-                try {
+                    serverIP = proxyStub.requestConnection(5);
+                    serverStub = (ServerInterface) registry.lookup(serverIP);
+                    mReq3 = new MarshalledObject<>(req3);
+                    System.out.println(serverStub.queryRequest(mReq3).get());
+                    serverIP = proxyStub.requestConnection(5);
+                    serverStub = (ServerInterface) registry.lookup(serverIP);
                     MarshalledObject<Request> mReq4 = new MarshalledObject<>(req4);
                     System.out.println(serverStub.queryRequest(mReq4).get());
-                } catch (IOException | ClassNotFoundException e) {
+                } catch (IOException | ClassNotFoundException | NotBoundException e) {
                     throw new RuntimeException(e);
                 }
             }).start();
 
             new Thread(() -> {
                 try {
-                    MarshalledObject<Request> mReq5 = new MarshalledObject<>(req5);
-                    System.out.println(serverStub.queryRequest(mReq5).get());
-                } catch (IOException | ClassNotFoundException e) {
+                    String serverIP = proxyStub.requestConnection(5);
+                    ServerInterface serverStub = (ServerInterface) registry.lookup(serverIP);
+                    MarshalledObject<Request> mReq4 = new MarshalledObject<>(req4);
+                    System.out.println(serverStub.queryRequest(mReq4).get());
+                } catch (IOException | ClassNotFoundException | NotBoundException e) {
                     throw new RuntimeException(e);
                 }
             }).start();
 
-        } catch (Exception e) {
+            new Thread(() -> {
+                try {
+                    String serverIP = proxyStub.requestConnection(5);
+                    ServerInterface serverStub = (ServerInterface) registry.lookup(serverIP);
+                    MarshalledObject<Request> mReq5 = new MarshalledObject<>(req5);
+                    System.out.println(serverStub.queryRequest(mReq5).get());
+                } catch (IOException | ClassNotFoundException | NotBoundException e) {
+                    throw new RuntimeException(e);
+                }
+            }).start();
+
+            new Thread(() -> {
+                try {
+                    String serverIP = proxyStub.requestConnection(5);
+                    ServerInterface serverStub = (ServerInterface) registry.lookup(serverIP);
+                    MarshalledObject<Request> mReq = new MarshalledObject<>(req);
+                    System.out.println(serverStub.queryRequest(mReq).get());
+                } catch (IOException | ClassNotFoundException | NotBoundException e) {
+                    throw new RuntimeException(e);
+                }
+            }).start();
+
+            new Thread(() -> {
+                try {
+                    String serverIP = proxyStub.requestConnection(5);
+                    ServerInterface serverStub = (ServerInterface) registry.lookup(serverIP);
+                    MarshalledObject<Request> mReq2 = new MarshalledObject<>(req2);
+                    System.out.println(serverStub.queryRequest(mReq2).get());
+                } catch (IOException | ClassNotFoundException | NotBoundException e) {
+                    throw new RuntimeException(e);
+                }
+            }).start();
+
+            new Thread(() -> {
+                try {
+                    String serverIP = proxyStub.requestConnection(5);
+                    ServerInterface serverStub = (ServerInterface) registry.lookup(serverIP);
+                    MarshalledObject<Request> mReq3 = new MarshalledObject<>(req3);
+                    System.out.println(serverStub.queryRequest(mReq3).get());
+                } catch (IOException | ClassNotFoundException | NotBoundException e) {
+                    throw new RuntimeException(e);
+                }
+            }).start();
+
+            new Thread(() -> {
+                try {
+                    String serverIP = proxyStub.requestConnection(5);
+                    ServerInterface serverStub = (ServerInterface) registry.lookup(serverIP);
+                    MarshalledObject<Request> mReq4 = new MarshalledObject<>(req4);
+                    System.out.println(serverStub.queryRequest(mReq4).get());
+                } catch (IOException | ClassNotFoundException | NotBoundException e) {
+                    throw new RuntimeException(e);
+                }
+            }).start();
+
+            new Thread(() -> {
+                try {
+                    String serverIP = proxyStub.requestConnection(5);
+                    ServerInterface serverStub = (ServerInterface) registry.lookup(serverIP);
+                    MarshalledObject<Request> mReq5 = new MarshalledObject<>(req5);
+                    System.out.println(serverStub.queryRequest(mReq5).get());
+                } catch (IOException | ClassNotFoundException | NotBoundException e) {
+                    throw new RuntimeException(e);
+                }
+            }).start();
+
+            new Thread(() -> {
+                try {
+                    String serverIP = proxyStub.requestConnection(5);
+                    ServerInterface serverStub = (ServerInterface) registry.lookup(serverIP);
+                    MarshalledObject<Request> mReq = new MarshalledObject<>(req);
+                    System.out.println(serverStub.queryRequest(mReq).get());
+                } catch (IOException | ClassNotFoundException | NotBoundException e) {
+                    throw new RuntimeException(e);
+                }
+            }).start();
+
+            new Thread(() -> {
+                try {
+                    String serverIP = proxyStub.requestConnection(5);
+                    ServerInterface serverStub = (ServerInterface) registry.lookup(serverIP);
+                    MarshalledObject<Request> mReq2 = new MarshalledObject<>(req2);
+                    System.out.println(serverStub.queryRequest(mReq2).get());
+                } catch (IOException | ClassNotFoundException | NotBoundException e) {
+                    throw new RuntimeException(e);
+                }
+            }).start();
+
+            new Thread(() -> {
+                try {
+                    String serverIP = proxyStub.requestConnection(5);
+                    ServerInterface serverStub = (ServerInterface) registry.lookup(serverIP);
+                    MarshalledObject<Request> mReq3 = new MarshalledObject<>(req3);
+                    System.out.println(serverStub.queryRequest(mReq3).get());
+                } catch (IOException | ClassNotFoundException | NotBoundException e) {
+                    throw new RuntimeException(e);
+                }
+            }).start();
+
+            new Thread(() -> {
+                try {
+                    String serverIP = proxyStub.requestConnection(5);
+                    ServerInterface serverStub = (ServerInterface) registry.lookup(serverIP);
+                    MarshalledObject<Request> mReq4 = new MarshalledObject<>(req4);
+                    System.out.println(serverStub.queryRequest(mReq4).get());
+                } catch (IOException | ClassNotFoundException | NotBoundException e) {
+                    throw new RuntimeException(e);
+                }
+            }).start();
+
+            new Thread(() -> {
+                try {
+                    String serverIP = proxyStub.requestConnection(5);
+                    ServerInterface serverStub = (ServerInterface) registry.lookup(serverIP);
+                    MarshalledObject<Request> mReq5 = new MarshalledObject<>(req5);
+                    System.out.println(serverStub.queryRequest(mReq5).get());
+                } catch (IOException | ClassNotFoundException | NotBoundException e) {
+                    throw new RuntimeException(e);
+                }
+            }).start();
+
+        } catch (RemoteException | NotBoundException e) {
             System.err.println("Client exception: " + e.toString());
             e.printStackTrace();
         }

@@ -22,4 +22,13 @@ public class Request implements Serializable {
     public int getClientZone() {
         return clientZone;
     }
+
+    @Override
+    public String toString() {
+        return "Request{" +
+                "methodName='" + methodName + '\'' +
+                ", arguments=" + arguments +
+                ", clientZone=" + clientZone +
+                '}';
+    }
 }

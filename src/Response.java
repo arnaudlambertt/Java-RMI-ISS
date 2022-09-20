@@ -2,43 +2,59 @@ import java.io.Serializable;
 
 public class Response implements Serializable {
     private final Request req;
-
     private int result;
+    private int statusCode;
+    private double executionTime;
+    private double waitingTime;
 
-    private double execTime;
-
-    private double waitTime;
     public Response(Request req) {
         this.req = req;
-        this.result = 0;
-        this.execTime = 0;
-        this.waitTime = 0;
     }
+
     public void setResult(int result) {
         this.result = result;
     }
 
-    public void setExecTime(double execTime) {
-        this.execTime = execTime;
+    public void setStatusCode(int statusCode) {
+        this.statusCode = statusCode;
     }
 
-    public void setWaitTime(double waitTime) {
-        this.waitTime = waitTime;
+    public void setExecutionTime(double executionTime) {
+        this.executionTime = executionTime;
+    }
+
+    public void setWaitingTime(double waitingTime) {
+        this.waitingTime = waitingTime;
+    }
+
+    public Request getReq() {
+        return req;
     }
 
     public int getResult() {
         return result;
     }
 
-    public double getExecTime() {
-        return execTime;
+    public int getStatusCode() {
+        return statusCode;
     }
 
-    public double getWaitTime() {
-        return waitTime;
+    public double getExecutionTime() {
+        return executionTime;
     }
 
-    public Request getReq() {
-        return req;
+    public double getWaitingTime() {
+        return waitingTime;
+    }
+
+    @Override
+    public String toString() {
+        return "Response{" +
+                "req=" + req +
+                ", result=" + result +
+                ", statusCode=" + statusCode +
+                ", executionTime=" + executionTime +
+                ", waitingTime=" + waitingTime +
+                '}';
     }
 }

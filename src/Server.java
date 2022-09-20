@@ -5,43 +5,26 @@ import java.lang.reflect.Array;
 import java.rmi.MarshalledObject;
 import java.rmi.RemoteException;
 import java.util.*;
+import java.util.concurrent.BlockingQueue;
+import java.util.concurrent.LinkedBlockingQueue;
 
 public class Server implements ServerInterface {
     private final String ip;
     private final String port;
     private final int zone;
-    private final Queue<Task> waitingList;
+    private final BlockingQueue<Task> waitingList;
 
     private final ArrayList<ArrayList<String>> dataset;
-
     private final Thread processingThread;
-    public class ProcessingThread extends Thread {
-        private final Queue<Task> waitingList; //task ?
-
-        public ProcessingThread(Queue<Task> waitingList) {
-            this.waitingList = waitingList;
-        }
-
-        @Override
-        public void run() {
-            while (true){
-                Task currentTask = waitingList.remove();
-                //process the next request in the queue
-                //...
-
-                //interrupt if possible
-            }
-        }
-    }
-
 
     public Server(String ip, String port, int zone){
         this.ip = ip;
         this.port = port;
         this.zone = zone;
         this.dataset = parseDataset("data/dataset.csv");
-        this.waitingList = new LinkedList<>();
-        this.processingThread = new ProcessingThread(waitingList);
+        this.waitingList = new LinkedBlockingQueue<>();
+        this.processingThread = new Thread(this::processTasks);
+        this.processingThread.start();
     }
 
     public ArrayList<ArrayList<String>> parseDataset(String fileName)
@@ -77,6 +60,54 @@ public class Server implements ServerInterface {
         return parsedDataset;
     }
 
+    public void processTasks(){
+        while(true){
+            try {
+                Task currentTask = waitingList.take();
+                long startExecutionTime = System.currentTimeMillis();
+                currentTask.setWaitingTime(startExecutionTime-currentTask.getWaitingTime());
+
+                switch (currentTask.getMethodName()){
+                    case "getPopulationOfCountry": {
+                        String arg0 = currentTask.getArguments().get(0);
+
+                        currentTask.setResult(getPopulationOfCountry(arg0));
+                        break;
+                    }
+                    case "getNumberOfCities": {
+                        String arg0 = currentTask.getArguments().get(0);
+                        String arg1 = currentTask.getArguments().get(1);
+
+                        currentTask.setResult(getNumberOfCities(arg0,arg1));
+                        break;
+                    }
+                    case "getNumberOfCountries": {
+                        String arg0 = currentTask.getArguments().get(0);
+                        String arg1 = currentTask.getArguments().get(1);
+
+                        if(currentTask.getArguments().size() < 3)
+                            currentTask.setResult(getNumberOfCountries(arg0,arg1));
+                        else {
+                            String arg2 = currentTask.getArguments().get(2);
+                            currentTask.setResult(getNumberOfCountries(arg0,arg1,arg2));
+                        }
+                        break;
+                    }
+
+                    default:
+                        break;
+                }
+
+                currentTask.setExecutionTime(System.currentTimeMillis()-startExecutionTime);
+                synchronized (currentTask){
+                    currentTask.notify();
+                }
+            } catch (InterruptedException e) {
+                throw new RuntimeException(e);
+            }
+        }
+    }
+
     public int getPopulationOfCountry(String countryCode) {
         int counter = 0;
 
@@ -87,10 +118,10 @@ public class Server implements ServerInterface {
         return counter;
     }
 
-    public int getNumberOfCities(String countryCode, String min) {
+    public int getNumberOfCities(String countryCode, String minPopulation) {
         int counter = 0;
         for (ArrayList<String> line : dataset) {
-            if (line.get(2).equals(countryCode) && Integer.parseInt(line.get(4)) > Integer.parseInt(min))
+            if (line.get(2).equals(countryCode) && Integer.parseInt(line.get(4)) >= Integer.parseInt(minPopulation))
                 counter += Integer.parseInt(line.get(4));
         }
         return counter;
@@ -150,12 +181,30 @@ public class Server implements ServerInterface {
 
     @Override
     public MarshalledObject<Response> queryRequest(MarshalledObject<Request> req) throws RemoteException{
-        Response res;
         try {
-            res = new Response(req.get());
+            Response res = new Response(req.get());
             Thread.sleep(req.get().getClientZone() == this.getZone() ? 80 : 170);
-            //System.out.println(getNumberOfCountries("30", "100000", "800000"));
-            res.setResult(getNumberOfCountries("30", "100000", "800000"));
+
+            try {
+                Task task = new Task(req.get());
+                waitingList.put(task);
+
+                synchronized (task){
+                    task.wait();
+                }
+
+                res.setResult(task.getResult());
+                res.setWaitingTime(task.getWaitingTime());
+                res.setExecutionTime(task.getExecutionTime());
+                res.setStatusCode(200);
+
+            } catch (IllegalArgumentException | NoSuchMethodException e){
+                res.setStatusCode(400);
+            }
+            catch (InterruptedException e) {
+                throw new RuntimeException(e);
+            }
+
             return new MarshalledObject<>(res);
         } catch (IOException | ClassNotFoundException | InterruptedException e) {
             throw new RuntimeException(e);

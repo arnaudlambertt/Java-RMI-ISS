@@ -9,24 +9,19 @@ import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingQueue;
 
 public class Server implements ServerInterface {
-    private final String ip;
-    private final String port;
     private final int zone;
     private final BlockingQueue<Task> waitingList;
 
     private final ArrayList<ArrayList<String>> dataset;
     private final Thread processingThread;
 
-    public Server(String ip, String port, int zone){
-        this.ip = ip;
-        this.port = port;
+    public Server(int zone){
         this.zone = zone;
         this.dataset = parseDataset("data/dataset.csv");
         this.waitingList = new LinkedBlockingQueue<>();
         this.processingThread = new Thread(this::processTasks);
         this.processingThread.start();
     }
-
     public ArrayList<ArrayList<String>> parseDataset(String fileName)
     {
         File file= new File(fileName);
@@ -166,13 +161,8 @@ public class Server implements ServerInterface {
     }
 
     @Override
-    public String getIp() throws RemoteException{
-        return ip;
-    }
-
-    @Override
-    public String getPort() throws RemoteException{
-        return port;
+    public Integer getQueueLength() throws RemoteException {
+        return waitingList.size();
     }
 
     public int getZone() {

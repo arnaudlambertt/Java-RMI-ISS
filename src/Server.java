@@ -13,18 +13,17 @@ public class Server implements ServerInterface {
     private final BlockingQueue<Task> waitingList;
 
     private final ArrayList<ArrayList<String>> dataset;
-    private final Thread processingThread;
 
     public Server(int zone){
         this.zone = zone;
         this.dataset = parseDataset("data/dataset.csv");
         this.waitingList = new LinkedBlockingQueue<>();
-        this.processingThread = new Thread(this::processTasks);
-        this.processingThread.start();
+        Thread processingThread = new Thread(this::processTasks);
+        processingThread.start();
     }
     public ArrayList<ArrayList<String>> parseDataset(String fileName)
     {
-        File file= new File(fileName);
+        File file = new File(fileName);
         ArrayList<ArrayList<String>> parsedDataset = new ArrayList<>();
         Scanner inputStream;
         try{

@@ -67,7 +67,6 @@ public class Proxy implements ProxyInterface {
         } catch (RemoteException e) {
             System.out.println(e.getMessage());
         }
-        System.out.println(storedQueueLengths.get(zone-1));
         return null;
     }
     @Override

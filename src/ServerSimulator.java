@@ -12,13 +12,12 @@ public class ServerSimulator{
             ArrayList<Server> servers = new ArrayList<>();
             ArrayList<ServerInterface> stubs = new ArrayList<>();
 
-
             // Bind the remote object's stub in the registry
             LocateRegistry.createRegistry(1099);
             Registry registry = LocateRegistry.getRegistry();
 
             for(int i = 0; i < serverAmount; i++) {
-                Server server = new Server(i+1);
+                Server server = new Server(i+1, Integer.parseInt(args[0]));
                 servers.add(server);
                 stubs.add((ServerInterface) UnicastRemoteObject.exportObject(server, 0));
             }

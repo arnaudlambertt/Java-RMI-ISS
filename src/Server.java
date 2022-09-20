@@ -1,8 +1,6 @@
-import javax.swing.*;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
-import java.lang.reflect.Array;
 import java.rmi.MarshalledObject;
 import java.rmi.RemoteException;
 import java.util.*;
@@ -14,12 +12,14 @@ public class Server implements ServerInterface {
     private final BlockingQueue<Task> waitingList;
     private final ArrayList<ArrayList<String>> dataset;
     private final CachingMap<String,Integer> cache;
+    private final int cacheEnabled;
 
-    public Server(int zone){
+    public Server(int zone, int enableCache){
         this.zone = zone;
         this.dataset = parseDataset("data/dataset.csv");
         this.waitingList = new LinkedBlockingQueue<>();
-        this.cache = new CachingMap<>(2);
+        this.cache = new CachingMap<>(200);
+        this.cacheEnabled = enableCache;
         Thread processingThread = new Thread(this::processTasks);
         processingThread.start();
     }
@@ -55,7 +55,11 @@ public class Server implements ServerInterface {
                 currentTask.setWaitingTime(startExecutionTime-currentTask.getWaitingTime());
 
                 String queryString = currentTask.getMethodName() + currentTask.getArguments();
-                Integer cacheResult = cache.get(queryString);
+
+                Integer cacheResult = null;
+
+                if(cacheEnabled == 1)
+                    cacheResult = cache.get(queryString);
 
                 if(cacheResult == null){
 
@@ -90,7 +94,9 @@ public class Server implements ServerInterface {
                     }
                     currentTask.setResult(result);
                     System.out.println("FROM DATASET: " + result);
-                    cache.put(queryString, result);
+
+                    if(cacheEnabled == 1)
+                        cache.put(queryString, result);
 
                 }else{
                     System.out.println("FROM CACHE: " + cacheResult);

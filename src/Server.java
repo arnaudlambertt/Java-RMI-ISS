@@ -65,21 +65,18 @@ public class Server implements ServerInterface {
                 switch (currentTask.getMethodName()){
                     case "getPopulationOfCountry": {
                         String arg0 = currentTask.getArguments().get(0);
-
                         currentTask.setResult(getPopulationOfCountry(arg0));
                         break;
                     }
                     case "getNumberOfCities": {
                         String arg0 = currentTask.getArguments().get(0);
                         String arg1 = currentTask.getArguments().get(1);
-
                         currentTask.setResult(getNumberOfCities(arg0,arg1));
                         break;
                     }
                     case "getNumberOfCountries": {
                         String arg0 = currentTask.getArguments().get(0);
                         String arg1 = currentTask.getArguments().get(1);
-
                         if(currentTask.getArguments().size() < 3)
                             currentTask.setResult(getNumberOfCountries(arg0,arg1));
                         else {
@@ -88,11 +85,9 @@ public class Server implements ServerInterface {
                         }
                         break;
                     }
-
                     default:
                         break;
                 }
-
                 currentTask.setExecutionTime(System.currentTimeMillis()-startExecutionTime);
                 synchronized (currentTask){
                     currentTask.notify();
@@ -117,7 +112,7 @@ public class Server implements ServerInterface {
         int counter = 0;
         for (ArrayList<String> line : dataset) {
             if (line.get(2).equals(countryCode) && Integer.parseInt(line.get(4)) >= Integer.parseInt(minPopulation))
-                counter += Integer.parseInt(line.get(4));
+                counter++;
         }
         return counter;
     }

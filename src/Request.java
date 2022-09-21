@@ -1,15 +1,16 @@
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
 
 public class Request implements Serializable {
     private final String methodName;
     private final ArrayList<String> arguments;
     private final int clientZone;
 
-    public Request(String methodName, String[] arguments, int clientZone) {
+    public Request(String methodName, List<String> arguments, int clientZone) {
         this.methodName = methodName;
-        this.arguments = new ArrayList<String>(Arrays.asList(arguments));
+        this.arguments = new ArrayList<String>(arguments);
         this.clientZone = clientZone;
     }
 

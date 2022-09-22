@@ -11,14 +11,14 @@ public class Server implements ServerInterface {
     private final int zone;
     private final BlockingQueue<Task> waitingList;
     private final ArrayList<ArrayList<String>> dataset;
-    private final SynchronizedCachingMap<String,Integer> cache;
+    private final CachingMap<String,Integer> cache;
     private final int cacheEnabled;
 
     public Server(int zone, int enableCache){
         this.zone = zone;
         this.dataset = parseDataset("data/dataset.csv");
         this.waitingList = new LinkedBlockingQueue<>();
-        this.cache = new SynchronizedCachingMap<>(200);
+        this.cache = new CachingMap<>(200);
         this.cacheEnabled = enableCache;
         Thread processingThread = new Thread(this::processTasks);
         processingThread.start();
@@ -102,7 +102,8 @@ public class Server implements ServerInterface {
                 }
 
                 currentTask.setExecutionTime(System.currentTimeMillis()-startExecutionTime);
-                synchronized (currentTask){
+
+                synchronized (currentTask) {
                     currentTask.notify();
                 }
             } catch (InterruptedException e) {
@@ -185,9 +186,9 @@ public class Server implements ServerInterface {
 
             try {
                 Task task = new Task(req.get());
-                waitingList.put(task);
 
                 synchronized (task){
+                    waitingList.put(task);
                     task.wait();
                 }
 

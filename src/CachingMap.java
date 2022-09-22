@@ -1,10 +1,10 @@
 import java.util.LinkedHashMap;
 import java.util.Map;
 
-class SynchronizedCachingMap<K, V> extends LinkedHashMap<K, V> {
+class CachingMap<K, V> extends LinkedHashMap<K, V> {
     private final int capacity;
 
-    public SynchronizedCachingMap(int capacity) {
+    public CachingMap(int capacity) {
         super(capacity, 0.75F, true);
         this.capacity = capacity;
     }
@@ -16,14 +16,10 @@ class SynchronizedCachingMap<K, V> extends LinkedHashMap<K, V> {
 
     @Override
     public V get(Object key) {
-        synchronized (this){
-            return super.get(key);
-        }
+        return super.get(key);
     }
     @Override
     public V put(K key, V value) {
-        synchronized (this) {
-            return super.put(key, value);
-        }
+        return super.put(key, value);
     }
 }

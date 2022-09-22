@@ -1,17 +1,18 @@
 import java.io.*;
-import java.lang.reflect.Array;
 import java.rmi.MarshalledObject;
 import java.rmi.NotBoundException;
-import java.rmi.RemoteException;
 import java.rmi.registry.LocateRegistry;
 import java.rmi.registry.Registry;
 import java.util.ArrayList;
 import java.util.Scanner;
-import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicIntegerArray;
 
 public class Client {
-
+    /**
+     * Parses input file
+     * @param fileName
+     * @return Array of requests
+     */
     public static ArrayList<Request> parseInputFile(String fileName){
         File file = new File(fileName);
         ArrayList<Request> requests = new ArrayList<>();
@@ -38,10 +39,14 @@ public class Client {
         return requests;
     }
 
+    /**
+     * ClientSimulator
+     * @param args 0: Naive implementation, 1: Server cache enabled, 2: Server and client caches enabled
+     */
     public static void main(String[] args) {
         try {
             int clientThreads = 50;
-            SynchronizedCachingMap<String,Integer> cache = new SynchronizedCachingMap<>(50);
+            CachingMap<String,Integer> cache = new CachingMap<>(50);
             Integer cachingMode = Integer.parseInt(args[0]);
 
             Registry registry = LocateRegistry.getRegistry(null);
@@ -53,14 +58,17 @@ public class Client {
             switch(cachingMode){
                 case 0:{
                     fileName = "naive_server.txt";
+                    System.out.println("Naive implementation");
                     break;
                 }
                 case 1:{
                     fileName = "server_cache.txt";
+                    System.out.println("Server cache enabled");
                     break;
                 }
                 case 2:{
                     fileName = "client_cache.txt";
+                    System.out.println("Server and client caches enabled");
                     break;
                 }
                 default:
@@ -89,16 +97,21 @@ public class Client {
                             long turnaroundTime = System.currentTimeMillis();
 
                             if(cachingMode == 2)
-                                cacheResult = cache.get(queryString);
+                                synchronized (cache){
+                                    cacheResult = cache.get(queryString);
+                                }
 
                             if(cacheResult == null){
                                 String serverIP = proxyStub.requestConnection(req.getClientZone());
                                 ServerInterface serverStub = (ServerInterface) registry.lookup(serverIP);
                                 MarshalledObject<Request> mReq = new MarshalledObject<>(req);
+                                //System.out.println(req);
                                 res = serverStub.queryRequest(mReq).get();
 
                                 if(cachingMode == 2)
-                                    cache.put(queryString, res.getResult());
+                                    synchronized (cache) {
+                                        cache.put(queryString, res.getResult());
+                                    }
                             }
                             else {
                                 res = new Response(req ,0);
@@ -132,7 +145,7 @@ public class Client {
 
                             outputStream.write(res.getResult() + " " + queryString + " (turnaround time: " + turnaroundTime + " ms, execution time: "
                                     + res.getExecutionTime() + " ms, waiting time: " + res.getWaitingTime() + " ms, processed by Server " + res.getServerZone() + ")\n");
-
+                            outputStream.flush();
 
                             //System.out.println("Client No." + (finalI+1) + " Request No." + j + " " + res + " turnaroundTime: " + turnaroundTime);
 
@@ -170,7 +183,9 @@ public class Client {
                             + " ms, waiting time: " + averageTimings[i].get(2)/averageTimings[i].get(3) + " ms\n");
                 }
             outputStream.flush();
-            //outputStream.close();
+            outputStream.close();
+
+            System.out.println("Outputs written to data/" + fileName);
 
         } catch (NotBoundException | IOException | InterruptedException e) {
             System.err.println("Client exception: " + e.toString());

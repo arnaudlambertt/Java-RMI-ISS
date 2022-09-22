@@ -7,6 +7,12 @@ public class Task {
     private long executionTime;
     private int result;
 
+    /**
+     * Task constructor that validates a request or throws and an exception
+     * @param req user request
+     * @throws IllegalArgumentException when the request arguments are invalid
+     * @throws NoSuchMethodException when the request method doesn't exist
+     */
     public Task(Request req) throws IllegalArgumentException, NoSuchMethodException {
         switch (req.getMethodName()){
             case "getPopulationofCountry": {

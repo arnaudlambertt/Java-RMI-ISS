@@ -9,20 +9,31 @@ import java.util.concurrent.LinkedBlockingQueue;
 
 public class Server implements ServerInterface {
     private final int zone;
-    private final BlockingQueue<Task> waitingList;
+    private final BlockingQueue<Task> waitingQueue;
     private final ArrayList<ArrayList<String>> dataset;
     private final CachingMap<String,Integer> cache;
     private final int cacheEnabled;
 
+    /**
+     * Server constructor
+     * @param zone integer
+     * @param enableCache boolean
+     */
     public Server(int zone, int enableCache){
         this.zone = zone;
         this.dataset = parseDataset("data/dataset.csv");
-        this.waitingList = new LinkedBlockingQueue<>();
+        this.waitingQueue = new LinkedBlockingQueue<>();
         this.cache = new CachingMap<>(200);
         this.cacheEnabled = enableCache;
         Thread processingThread = new Thread(this::processTasks);
         processingThread.start();
     }
+
+    /**
+     * Parses the dataset file
+     * @param fileName Path to file to parse
+     * @return Two-dimensional array of Strings
+     */
     public ArrayList<ArrayList<String>> parseDataset(String fileName)
     {
         File file = new File(fileName);
@@ -47,10 +58,13 @@ public class Server implements ServerInterface {
         return parsedDataset;
     }
 
+    /**
+     * Waits and takes the first task element in the waiting queue and processes it, before notifying the RMI thread
+     */
     public void processTasks(){
         while(true){
             try {
-                Task currentTask = waitingList.take();
+                Task currentTask = waitingQueue.take();
                 long startExecutionTime = System.currentTimeMillis();
                 currentTask.setWaitingTime(startExecutionTime-currentTask.getWaitingTime());
 
@@ -112,6 +126,11 @@ public class Server implements ServerInterface {
         }
     }
 
+    /**
+     * Counts the population for a given countryCode
+     * @param countryCode string
+     * @return result
+     */
     public int getPopulationOfCountry(String countryCode) {
         int counter = 0;
 
@@ -122,6 +141,12 @@ public class Server implements ServerInterface {
         return counter;
     }
 
+    /**
+     * Counts the number of cities with the at least minimum population for a given countryCode
+     * @param countryCode string
+     * @param minPopulation string
+     * @return result
+     */
     public int getNumberOfCities(String countryCode, String minPopulation) {
         int counter = 0;
         for (ArrayList<String> line : dataset) {
@@ -131,6 +156,12 @@ public class Server implements ServerInterface {
         return counter;
     }
 
+    /**
+     * Counts the number of countries with at least cityCount of cities with at least the minimum population
+     * @param cityCount string
+     * @param minPopulation string
+     * @return result
+     */
     public int getNumberOfCountries(String cityCount, String minPopulation) {
 
         int counter = 0;
@@ -139,7 +170,7 @@ public class Server implements ServerInterface {
 
         for(ArrayList<String> line : dataset) {
             if(Integer.parseInt(line.get(4)) >= Integer.parseInt(minPopulation)){
-                countryCountMap.put(line.get(2), (countryCountMap.containsKey(line.get(2)) ? countryCountMap.get(line.get(2)) : 0) + 1);
+                countryCountMap.put(line.get(2), (countryCountMap.getOrDefault(line.get(2), 0)) + 1);
             }
         }
         for(Map.Entry<String, Integer> countryCount : countryCountMap.entrySet()){
@@ -150,6 +181,13 @@ public class Server implements ServerInterface {
         return counter;
     }
 
+    /**
+     * Counts the number of countries with at least cityCount of cities with population between min and max
+     * @param cityCount string
+     * @param minPopulation string
+     * @param maxPopulation string
+     * @return result
+     */
     public int getNumberOfCountries(String cityCount, String minPopulation, String maxPopulation) {
 
         int counter = 0;
@@ -158,7 +196,7 @@ public class Server implements ServerInterface {
 
         for(ArrayList<String> line : dataset) {
             if(Integer.parseInt(line.get(4)) >= Integer.parseInt(minPopulation) && Integer.parseInt(line.get(4)) <= Integer.parseInt(maxPopulation)){
-                countryCountMap.put(line.get(2), (countryCountMap.containsKey(line.get(2)) ? countryCountMap.get(line.get(2)) : 0) + 1);
+                countryCountMap.put(line.get(2), (countryCountMap.getOrDefault(line.get(2), 0)) + 1);
             }
         }
         for(Map.Entry<String, Integer> countryCount : countryCountMap.entrySet()){
@@ -169,15 +207,26 @@ public class Server implements ServerInterface {
         return counter;
     }
 
+    /**
+     * RMI method that returns the size of the waitingQueue
+     * @return integer
+     * @throws RemoteException RMI issue
+     */
     @Override
     public Integer getQueueLength() throws RemoteException {
-        return waitingList.size();
+        return waitingQueue.size();
     }
 
     public int getZone() {
         return zone;
     }
 
+    /**
+     * RMI method that accepts a request, creates a task, waits for it to be processed, then returns the response to the client
+     * @param req Marshalled request
+     * @return Marshalled response object containing the result and more
+     * @throws RemoteException RMI issue
+     */
     @Override
     public MarshalledObject<Response> queryRequest(MarshalledObject<Request> req) throws RemoteException{
         try {
@@ -188,7 +237,7 @@ public class Server implements ServerInterface {
                 Task task = new Task(req.get());
 
                 synchronized (task){
-                    waitingList.put(task);
+                    waitingQueue.put(task);
                     task.wait();
                 }
 

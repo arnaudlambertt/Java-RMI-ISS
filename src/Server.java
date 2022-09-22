@@ -11,14 +11,14 @@ public class Server implements ServerInterface {
     private final int zone;
     private final BlockingQueue<Task> waitingList;
     private final ArrayList<ArrayList<String>> dataset;
-    private final CachingMap<String,Integer> cache;
+    private final SynchronizedCachingMap<String,Integer> cache;
     private final int cacheEnabled;
 
     public Server(int zone, int enableCache){
         this.zone = zone;
         this.dataset = parseDataset("data/dataset.csv");
         this.waitingList = new LinkedBlockingQueue<>();
-        this.cache = new CachingMap<>(200);
+        this.cache = new SynchronizedCachingMap<>(200);
         this.cacheEnabled = enableCache;
         Thread processingThread = new Thread(this::processTasks);
         processingThread.start();
@@ -66,18 +66,18 @@ public class Server implements ServerInterface {
                     int result;
 
                     switch (currentTask.getMethodName()){
-                        case "getPopulationOfCountry": {
+                        case "getPopulationofCountry": {
                             String arg0 = currentTask.getArguments().get(0);
                             result = getPopulationOfCountry(arg0);
                             break;
                         }
-                        case "getNumberOfCities": {
+                        case "getNumberofCities": {
                             String arg0 = currentTask.getArguments().get(0);
                             String arg1 = currentTask.getArguments().get(1);
                             result = getNumberOfCities(arg0,arg1);
                             break;
                         }
-                        case "getNumberOfCountries": {
+                        case "getNumberofCountries": {
                             String arg0 = currentTask.getArguments().get(0);
                             String arg1 = currentTask.getArguments().get(1);
                             if(currentTask.getArguments().size() < 3)
@@ -93,13 +93,11 @@ public class Server implements ServerInterface {
                             break;
                     }
                     currentTask.setResult(result);
-                    System.out.println("FROM DATASET: " + result);
 
                     if(cacheEnabled == 1)
                         cache.put(queryString, result);
 
                 }else{
-                    System.out.println("FROM CACHE: " + cacheResult);
                     currentTask.setResult(cacheResult);
                 }
 
@@ -182,7 +180,7 @@ public class Server implements ServerInterface {
     @Override
     public MarshalledObject<Response> queryRequest(MarshalledObject<Request> req) throws RemoteException{
         try {
-            Response res = new Response(req.get());
+            Response res = new Response(req.get(), this.getZone());
             Thread.sleep(req.get().getClientZone() == this.getZone() ? 80 : 170);
 
             try {
@@ -196,10 +194,10 @@ public class Server implements ServerInterface {
                 res.setResult(task.getResult());
                 res.setWaitingTime(task.getWaitingTime());
                 res.setExecutionTime(task.getExecutionTime());
-                res.setStatusCode(200);
+                res.setStatusCode("200");
 
             } catch (IllegalArgumentException | NoSuchMethodException e){
-                res.setStatusCode(400);
+                res.setStatusCode("400");
             }
             catch (InterruptedException e) {
                 throw new RuntimeException(e);

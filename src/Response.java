@@ -3,19 +3,21 @@ import java.io.Serializable;
 public class Response implements Serializable {
     private final Request req;
     private int result;
-    private int statusCode;
+    private String statusCode;
     private double executionTime;
     private double waitingTime;
+    private final int serverZone;
 
-    public Response(Request req) {
+    public Response(Request req, int serverZone) {
         this.req = req;
+        this.serverZone = serverZone;
     }
 
     public void setResult(int result) {
         this.result = result;
     }
 
-    public void setStatusCode(int statusCode) {
+    public void setStatusCode(String statusCode) {
         this.statusCode = statusCode;
     }
 
@@ -35,7 +37,7 @@ public class Response implements Serializable {
         return result;
     }
 
-    public int getStatusCode() {
+    public String getStatusCode() {
         return statusCode;
     }
 
@@ -47,10 +49,15 @@ public class Response implements Serializable {
         return waitingTime;
     }
 
+    public int getServerZone() {
+        return serverZone;
+    }
+
     @Override
     public String toString() {
         return "Response{" +
                 "req=" + req +
+                ", serverZone=" + serverZone +
                 ", result=" + result +
                 ", statusCode=" + statusCode +
                 ", executionTime=" + executionTime +

@@ -9,12 +9,12 @@ public class Task {
 
     public Task(Request req) throws IllegalArgumentException, NoSuchMethodException {
         switch (req.getMethodName()){
-            case "getPopulationOfCountry": {
+            case "getPopulationofCountry": {
                 if (req.getArguments().size() < 1)
                     throw new IllegalArgumentException("Bad arguments: " + req.getArguments());
                 break;
             }
-            case "getNumberOfCities": {
+            case "getNumberofCities": {
                 try {
                     if (req.getArguments().size() < 2)
                         throw new IllegalArgumentException("Bad arguments: " + req.getArguments());
@@ -24,11 +24,11 @@ public class Task {
                 }
                 break;
             }
-            case "getNumberOfCountries": {
+            case "getNumberofCountries": {
                 try{
-                    if(req.getArguments().size() < 2)
+                    if(req.getArguments().size() < 2) {
                         throw new IllegalArgumentException("Bad arguments: " + req.getArguments());
-
+                    }
                     Integer.valueOf(req.getArguments().get(0));
                     Integer.valueOf(req.getArguments().get(1));
 

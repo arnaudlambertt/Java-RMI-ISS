@@ -1,3 +1,5 @@
+import com.sun.org.apache.xpath.internal.operations.Bool;
+
 import java.rmi.registry.LocateRegistry;
 import java.rmi.registry.Registry;
 import java.rmi.server.UnicastRemoteObject;
@@ -7,6 +9,12 @@ public class ServerSimulator{
     public ServerSimulator() {
     }
     public static void main(String[] args) {
+
+        int cachingMode = Integer.parseInt(args[0]);
+
+        if(cachingMode != 0 && cachingMode != 1)
+            throw new IllegalArgumentException("Illegal Argument: Only 0 and 1 are valid.");
+
         try {
             int serverAmount = 5;
             ArrayList<Server> servers = new ArrayList<>();
@@ -17,7 +25,7 @@ public class ServerSimulator{
             Registry registry = LocateRegistry.getRegistry();
 
             for(int i = 0; i < serverAmount; i++) {
-                Server server = new Server(i+1, Integer.parseInt(args[0]));
+                Server server = new Server(i+1, cachingMode);
                 servers.add(server);
                 stubs.add((ServerInterface) UnicastRemoteObject.exportObject(server, 0));
             }

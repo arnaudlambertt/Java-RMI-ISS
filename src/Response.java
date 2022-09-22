@@ -8,6 +8,11 @@ public class Response implements Serializable {
     private double waitingTime;
     private final int serverZone;
 
+    /**
+     * Response constructor
+     * @param req Request class
+     * @param serverZone Integer
+     */
     public Response(Request req, int serverZone) {
         this.req = req;
         this.serverZone = serverZone;

@@ -20,6 +20,11 @@ public class Proxy implements ProxyInterface {
     private final ArrayList<Integer> storedQueueLengths;
     private final AtomicIntegerArray requestCounter;
 
+    /**
+     * Proxy constructor
+     * @throws RemoteException Java RMI method execution exception
+     * @throws NotBoundException Java RMI registry not bound exception
+     */
     Proxy() throws RemoteException, NotBoundException {
 
         Registry registry = LocateRegistry.getRegistry(1099);
@@ -42,6 +47,12 @@ public class Proxy implements ProxyInterface {
             updateServerInfo(i+1);
     }
 
+    /**
+     * Finds the neighboring server if the neighboring server is not busy
+     * @param zone The zone at which to find a neighboring server
+     * @return Returns address of neighbor or local server
+     * @throws RemoteException Java RMI method execution exception
+     */
     public String requestNeighbor(int zone) throws RemoteException{
         int higher = zone%5;
         int lower = (zone+3)%5;
@@ -61,6 +72,11 @@ public class Proxy implements ProxyInterface {
         return neighborAddress;
     }
 
+    /**
+     * Updates the queue lengths of the specific server
+     * @param zone The zone at which to update server info
+     * @return null
+     */
     public Runnable updateServerInfo(int zone) {
         try {
             storedQueueLengths.set(zone-1, stubs.get(zone-1).getQueueLength());
@@ -69,6 +85,13 @@ public class Proxy implements ProxyInterface {
         }
         return null;
     }
+
+    /**
+     * Method which finds the most appropriate server for the client to connect to
+     * @param zone Client zone
+     * @return Returns the found server.
+     * @throws RemoteException Java RMI method execution exception
+     */
     @Override
     public String requestConnection(int zone) throws RemoteException {
         if(requestCounter.incrementAndGet(zone-1) == 20) {

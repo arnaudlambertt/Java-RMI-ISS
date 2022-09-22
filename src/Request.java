@@ -8,6 +8,12 @@ public class Request implements Serializable {
     private final ArrayList<String> arguments;
     private final int clientZone;
 
+    /**
+     * Request constructor
+     * @param methodName String
+     * @param arguments List of Strings
+     * @param clientZone Integer
+     */
     public Request(String methodName, List<String> arguments, int clientZone) {
         this.methodName = methodName;
         this.arguments = new ArrayList<String>(arguments);

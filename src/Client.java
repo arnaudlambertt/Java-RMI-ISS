@@ -10,7 +10,7 @@ import java.util.concurrent.atomic.AtomicIntegerArray;
 public class Client {
     /**
      * Parses input file
-     * @param fileName
+     * @param fileName Path to file to be parsed
      * @return Array of requests
      */
     public static ArrayList<Request> parseInputFile(String fileName){
@@ -40,7 +40,7 @@ public class Client {
     }
 
     /**
-     * ClientSimulator
+     * ClientSimulator main function
      * @param args 0: Naive implementation, 1: Server cache enabled, 2: Server and client caches enabled
      */
     public static void main(String[] args) {

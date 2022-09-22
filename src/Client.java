@@ -72,7 +72,7 @@ public class Client {
                     break;
                 }
                 default:
-                    throw new IllegalArgumentException("Illegal Argument: Only 0, 1 and 2 are valid.");
+                    throw new IllegalArgumentException("Illegal Argument: Only 0, 1 and 2 are valid");
             }
 
             ArrayList<Thread> threads = new ArrayList<>(clientThreads);
